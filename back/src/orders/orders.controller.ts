@@ -1,8 +1,24 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Request, Put, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  UseGuards,
+  Request,
+  Put,
+  Query,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OrdersService } from './orders.service';
-import { Order, OrderStatus } from './entities/order.entity';
+import { Order, OrderStatus } from '../database/entities/order.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { UpdateTrackingDto } from './dto/update-tracking.dto';
@@ -16,17 +32,28 @@ export class OrdersController {
 
   @Post()
   @ApiOperation({ summary: 'Create new order' })
-  @ApiResponse({ status: 201, description: 'Order created successfully', type: Order })
+  @ApiResponse({
+    status: 201,
+    description: 'Order created successfully',
+    type: Order,
+  })
   async createOrder(
     @Request() req,
     @Body() createOrderDto: CreateOrderDto,
   ): Promise<Order> {
-    return this.ordersService.createOrder(req.user, createOrderDto.shippingAddress);
+    return this.ordersService.createOrder(
+      req.user,
+      createOrderDto.shippingAddress,
+    );
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all user orders' })
-  @ApiResponse({ status: 200, description: 'Return all user orders', type: [Order] })
+  @ApiResponse({
+    status: 200,
+    description: 'Return all user orders',
+    type: [Order],
+  })
   @ApiQuery({ name: 'status', enum: OrderStatus, required: false })
   @ApiQuery({ name: 'startDate', type: Date, required: false })
   @ApiQuery({ name: 'endDate', type: Date, required: false })
@@ -60,29 +87,45 @@ export class OrdersController {
   @Get(':id')
   @ApiOperation({ summary: 'Get order by id' })
   @ApiResponse({ status: 200, description: 'Return order by id', type: Order })
-  async findOne(@Request() req, @Param('id') id: number): Promise<Order> {
+  async findOne(@Request() req, @Param('id') id: string): Promise<Order> {
     return this.ordersService.findOne(req.user, id);
   }
 
   @Put(':id/status')
   @ApiOperation({ summary: 'Update order status' })
-  @ApiResponse({ status: 200, description: 'Order status updated', type: Order })
+  @ApiResponse({
+    status: 200,
+    description: 'Order status updated',
+    type: Order,
+  })
   async updateStatus(
     @Request() req,
-    @Param('id') id: number,
+    @Param('id') id: string,
     @Body() updateStatusDto: UpdateOrderStatusDto,
   ): Promise<Order> {
-    return this.ordersService.updateStatus(req.user, id, updateStatusDto.status);
+    return this.ordersService.updateStatus(
+      req.user,
+      id,
+      updateStatusDto.status,
+    );
   }
 
   @Put(':id/tracking')
   @ApiOperation({ summary: 'Update order tracking number' })
-  @ApiResponse({ status: 200, description: 'Order tracking number updated', type: Order })
+  @ApiResponse({
+    status: 200,
+    description: 'Order tracking number updated',
+    type: Order,
+  })
   async updateTrackingNumber(
     @Request() req,
-    @Param('id') id: number,
+    @Param('id') id: string,
     @Body() updateTrackingDto: UpdateTrackingDto,
   ): Promise<Order> {
-    return this.ordersService.updateTrackingNumber(req.user, id, updateTrackingDto.trackingNumber);
+    return this.ordersService.updateTrackingNumber(
+      req.user,
+      id,
+      updateTrackingDto.trackingNumber,
+    );
   }
-} 
+}

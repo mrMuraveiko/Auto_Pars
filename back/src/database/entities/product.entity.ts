@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { Category } from './category.entity';
 import { CartItem } from './cart-item.entity';
 import { OrderItem } from './order-item.entity';
@@ -32,13 +40,13 @@ export class Product {
   @Column('simple-json', { nullable: true })
   specifications: Record<string, any> = {};
 
-  @ManyToOne(() => Category, category => category.products)
+  @ManyToOne(() => Category, (category) => category.products)
   category!: Category;
 
-  @OneToMany(() => CartItem, cartItem => cartItem.product)
+  @OneToMany(() => CartItem, (cartItem) => cartItem.product)
   cartItems!: CartItem[];
 
-  @OneToMany(() => OrderItem, orderItem => orderItem.product)
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
   orderItems!: OrderItem[];
 
   @Column({ default: 0 })
@@ -49,4 +57,4 @@ export class Product {
 
   @UpdateDateColumn()
   updatedAt!: Date;
-} 
+}

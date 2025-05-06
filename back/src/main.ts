@@ -5,11 +5,13 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    transform: true,
-  }));
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    }),
+  );
 
   // Swagger configuration
   const config = new DocumentBuilder()
@@ -22,10 +24,12 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   app.enableCors();
-  
-  await app.listen(3000, 'localhost');
-  console.log(`Application is running on: http://localhost:3000`);
-  console.log(`Swagger documentation is available at: http://localhost:3000/api`);
+
+  await app.listen(4000, 'localhost');
+  console.log(`Application is running on: http://localhost:4000`);
+  console.log(
+    `Swagger documentation is available at: http://localhost:4000/api`,
+  );
 }
 
 bootstrap();

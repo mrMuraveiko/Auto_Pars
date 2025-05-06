@@ -32,26 +32,35 @@ export class ProductsService {
     filters?: ProductFilters,
     sort?: ProductSort,
   ) {
-    const queryBuilder = this.productsRepository.createQueryBuilder('product')
-      .leftJoinAndSelect('product.category', 'category');
+    const queryBuilder = this.productsRepository
+      .createQueryBuilder('products')
+      .leftJoinAndSelect('products.category', 'category');
 
     // Apply filters
     if (filters) {
       if (filters.category) {
-        queryBuilder.andWhere('category.id = :categoryId', { categoryId: filters.category });
+        queryBuilder.andWhere('category.id = :categoryId', {
+          categoryId: filters.category,
+        });
       }
       if (filters.brand) {
-        queryBuilder.andWhere('product.brand = :brand', { brand: filters.brand });
+        queryBuilder.andWhere('products.brand = :brand', {
+          brand: filters.brand,
+        });
       }
       if (filters.minPrice !== undefined) {
-        queryBuilder.andWhere('product.price >= :minPrice', { minPrice: filters.minPrice });
+        queryBuilder.andWhere('products.price >= :minPrice', {
+          minPrice: filters.minPrice,
+        });
       }
       if (filters.maxPrice !== undefined) {
-        queryBuilder.andWhere('product.price <= :maxPrice', { maxPrice: filters.maxPrice });
+        queryBuilder.andWhere('products.price <= :maxPrice', {
+          maxPrice: filters.maxPrice,
+        });
       }
       if (filters.search) {
         queryBuilder.andWhere(
-          '(product.name ILIKE :search OR product.description ILIKE :search)',
+          '(products.name ILIKE :search OR products.description ILIKE :search)',
           { search: `%${filters.search}%` },
         );
       }
@@ -59,14 +68,14 @@ export class ProductsService {
 
     // Apply sorting
     if (sort) {
-      queryBuilder.orderBy(`product.${sort.field}`, sort.order);
+      queryBuilder.orderBy(`products.${sort.field}`, sort.order);
     } else {
-      queryBuilder.orderBy('product.createdAt', 'DESC');
+      queryBuilder.orderBy('products.createdAt', 'DESC');
     }
 
     // Apply pagination
-    const skip = (page - 1) * limit;
-    queryBuilder.skip(skip).take(limit);
+    const skip = (page - 1) * limit || 0;
+    queryBuilder.skip(skip).take(limit || 10);
 
     const [items, total] = await queryBuilder.getManyAndCount();
 
@@ -117,6 +126,6 @@ export class ProductsService {
       .createQueryBuilder('product')
       .select('DISTINCT product.brand')
       .getRawMany();
-    return products.map(p => p.brand);
+    return products.map((p) => p.brand);
   }
-} 
+}

@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Cart } from '../../database/entities/cart.entity';
-import { CartItem } from '../../database/entities/cart-item.entity';
-import { Product } from '../../database/entities/product.entity';
-import { User } from '../../database/entities/user.entity';
+import { Cart } from '../database/entities/cart.entity';
+import { CartItem } from '../database/entities/cart-item.entity';
+import { Product } from '../database/entities/product.entity';
+import { User } from '../database/entities/user.entity';
 
 @Injectable()
 export class CartService {
@@ -29,29 +29,44 @@ export class CartService {
     return cart;
   }
 
-  async addToCart(user: User, productId: number, quantity: number): Promise<Cart> {
+  async addToCart(
+    user: User,
+    productId: number,
+    quantity: number,
+  ): Promise<Cart> {
     const cart = await this.getOrCreateCart(user);
-    const existingItem = cart.items.find(item => item.product.id === productId);
+    const existingItem = cart.items.find(
+      (item) => item.product.id === productId.toString(),
+    );
 
     if (existingItem) {
       existingItem.quantity += quantity;
       await this.cartItemRepository.save(existingItem);
     } else {
-      const newItem = this.cartItemRepository.create({
-        cart,
-        product: { id: productId } as Product,
-        quantity,
-        price: (await this.cartItemRepository.findOne({ where: { product: { id: productId } } }))?.price || 0,
-      });
-      await this.cartItemRepository.save(newItem);
+      // const newItem = this.cartItemRepository.create({
+      //   cart,
+      //   product: { id: productId } as Product,
+      //   quantity,
+      //   price:
+      //     (
+      //       await this.cartItemRepository.findOne({
+      //         where: { product: { id: productId } },
+      //       })
+      //     )?.price || 0,
+      // });
+      // await this.cartItemRepository.save(newItem);
     }
 
     return this.getOrCreateCart(user);
   }
 
-  async updateCartItem(user: User, itemId: number, quantity: number): Promise<Cart> {
+  async updateCartItem(
+    user: User,
+    itemId: number,
+    quantity: number,
+  ): Promise<Cart> {
     const cart = await this.getOrCreateCart(user);
-    const item = cart.items.find(item => item.id === itemId);
+    const item = cart.items.find((item) => item.id === itemId.toString());
 
     if (!item) {
       throw new NotFoundException('Cart item not found');
@@ -69,7 +84,7 @@ export class CartService {
 
   async removeFromCart(user: User, itemId: number): Promise<Cart> {
     const cart = await this.getOrCreateCart(user);
-    const item = cart.items.find(item => item.id === itemId);
+    const item = cart.items.find((item) => item.id === itemId.toString());
 
     if (!item) {
       throw new NotFoundException('Cart item not found');
@@ -85,9 +100,17 @@ export class CartService {
     return this.getOrCreateCart(user);
   }
 
-  async calculateTotal(cart: Cart): Promise<{ total: number; itemsCount: number }> {
-    const total = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const itemsCount = cart.items.reduce((count, item) => count + item.quantity, 0);
+  async calculateTotal(
+    cart: Cart,
+  ): Promise<{ total: number; itemsCount: number }> {
+    const total = cart.items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
+    const itemsCount = cart.items.reduce(
+      (count, item) => count + item.quantity,
+      0,
+    );
     return { total, itemsCount };
   }
-} 
+}
